@@ -45,6 +45,23 @@ async function run() {
       const user = await userCollection.findOne(query);
       res.send(user);
     });
+
+    //get the user from db and add task to user tasks array
+    app.post("/tasks/create/:email", async (req, res) => {
+      const email = req.params.email;
+      const task = req.body;
+      const query = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $push: {
+          tasks: task,
+        },
+      };
+      const result = await userCollection.updateOne(query, updateDoc, options);
+      res.send(result);
+    });
+
+    
   } finally {
     // await client.close(console.log("database is closed"));
   }
