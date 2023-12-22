@@ -154,6 +154,27 @@ async function run() {
       }
     });
 
+    app.put('/tasks/update-status/:email/:taskId/:status', async (req, res) => {
+      const userEmail = req.params.email;
+      const taskId = req.params.taskId;
+      const status = req.params.status;
+    
+      try {
+        const result = await userCollection.updateOne(
+          { email: userEmail, 'tasks.tid': taskId },
+          { $set: { 'tasks.$.status': status } }
+        );
+
+        if (result.modifiedCount === 1) {
+          res.status(200).json({ success: true, message: 'Task status updated successfully' });
+        } else {
+          res.status(404).json({ success: false, message: 'Task not found or not updated' });
+        }
+      } catch (error) {
+        console.error('Error updating task status:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+    });
   } finally {
     // await client.close(console.log("database is closed"));
   }
